@@ -1,0 +1,35 @@
+# Select image from https://hub.docker.com/r/_/php/
+image: php:7.0-fpm
+
+# Select what we should cache
+cache:
+  paths:
+  - vendor/
+
+# Variables
+variables:
+  GIT_STRATEGY: clone
+  GIT_DEPTH: 1
+
+# Install dependencies
+before_script:
+  # Install git, the php image doesn't have installed
+  - apt-get update -y
+  - apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng12-dev libcurl4-gnutls-dev libicu-dev zlib1g-dev git
+  # Install php extensions
+  - docker-php-ext-install -j$(nproc) iconv mcrypt pdo_mysql intl opcache mbstring curl zip
+  - docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+  - docker-php-ext-install -j$(nproc) gd
+  - apt-get autoremove -y && apt-get clean all
+  - php -r "file_exists('.env') || copy('.env.example', '.env');"
+  # Install composer
+  - curl -sS https://getcomposer.org/installer | php
+  - php composer.phar install --no-scripts
+  - php artisan key:generate
+  - php composer.phar run-script post-install-cmd
+
+# We test with PHP 5.6 (the default)
+test:php70:
+  script:
+    - php vendor/bin/phpcs
+    - php vendor/bin/phpunit --coverage-text --colors=never

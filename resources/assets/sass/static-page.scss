@@ -1,0 +1,39 @@
+body {
+  font-size: 13px;
+  font-weight: 200;
+}
+ol {padding: 0 0 0 1.5em}
+ol.list-lv1 {
+  list-style: none;
+  padding: 0;
+
+  > li h4 {
+    font-weight: bold;
+    font-size: 1em;
+    margin: 1em 0 .2em;
+  }
+}
+
+ol.list-lv2 {
+  counter-reset: list-lv2;
+  list-style: none;
+  padding-left: 2em;
+
+  > li {
+    counter-increment: list-lv2;
+    position: relative;
+
+    &:before {
+      content: "(" counter(list-lv2) ")";
+      position: absolute;
+      top: 0.2em;
+      left: -1.5em;
+      user-select: none;
+    }
+  }
+}
+
+ol.list-lv3 {
+  list-style: none;
+  padding-left: 1em;
+}
