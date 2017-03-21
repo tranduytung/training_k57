@@ -20,7 +20,7 @@ class PasswordWillReset extends Notification implements ShouldQueue
     /**
      * @var string
      */
-    public $queue = 'notification';
+//    public $queue = 'notification';
 
     /**
      * @var User
@@ -42,6 +42,7 @@ class PasswordWillReset extends Notification implements ShouldQueue
     {
         $this->user = $user;
         $this->token = $token;
+        $this->onQueue('notification');
     }
 
     /**
@@ -63,7 +64,7 @@ class PasswordWillReset extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new TokenForResetPassword($this->user))->to($this->user->email);
+        return (new TokenForResetPassword($this->user, $this->token))->to($this->user->email);
     }
 
     /**

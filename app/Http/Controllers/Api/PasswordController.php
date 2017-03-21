@@ -8,6 +8,7 @@ use App\Http\ApiResponse;
 use App\Http\Requests\Api;
 use App\Models\User;
 use Illuminate\Auth\Passwords\TokenRepositoryInterface;
+use Illuminate\Support\Facades\Password;
 
 class PasswordController extends Controller
 {
@@ -19,9 +20,16 @@ class PasswordController extends Controller
      */
     public function forgot(Api\ForgotPasswordRequest $request)
     {
-        // TODO: Check email existed
-        // TODO: fire event and send email
-        // TODO: return response
+        // We will send the password reset link to this user. Once we have attempted
+        // to send the link, we will examine the response then see the message we
+        // need to show to the user. Finally, we'll send out a proper response.
+        $response = Password::broker()->sendResetLink(
+            $request->only('email')
+        );
+
+        return $response == Password::RESET_LINK_SENT
+                    ? ApiResponse::success(null)
+                    : ApiResponse::error('E0009');
     }
 
     /**

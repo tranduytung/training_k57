@@ -16,11 +16,13 @@ class ForgotPasswordListener
 
     /**
      * @param TokenRepositoryInterface $tokens
+     * TokenRepositoryInterface don't work here
+     * 
      */
-    public function __construct(TokenRepositoryInterface $tokens)
-    {
-        $this->tokens = $tokens;
-    }
+    //  public function __construct(TokenRepositoryInterface $tokens)
+    //  {
+    //  $this->tokens = $tokens;
+    //  }
 
     /**
      * Handle the event.
@@ -30,8 +32,9 @@ class ForgotPasswordListener
      */
     public function handle(ForgotPassword $event)
     {
-        $token = $this->tokens->create($event->user);
-
+        $token = app('auth.password.broker')->createToken($event->user);
+        // TokenRepositoryInterface don't work here
+        // $token = $this->tokens->create($event->user);
         if (method_exists($event->user, 'sendPasswordResetNotification')) {
             $event->user->sendPasswordResetNotification($token);
         } else {
