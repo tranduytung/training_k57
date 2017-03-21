@@ -111,12 +111,13 @@ class User extends Authenticatable
 
     /**
      * Send notification after user sent forgot password request
-     *
+     * Change function'name because sendPasswordResetNotification is override
+     * 
      * @param string $token
      */
-    public function sendPasswordResetNotification($token)
+    public function sendPasswordToResetNotification($token)
     {
-        $this->notify(new PasswordResetNotification($token, $this));
+        $this->notify(new PasswordResetNotification($this, $token));
     }
 
     /**

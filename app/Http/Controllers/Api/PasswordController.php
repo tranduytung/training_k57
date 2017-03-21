@@ -20,8 +20,16 @@ class PasswordController extends Controller
     public function forgot(Api\ForgotPasswordRequest $request)
     {
         // TODO: Check email existed
+        $user = User::where('email', $request->input('email'))->first();
+        if (!isset($user)) {
+            return ApiResponse::error('E0009');
+        }
+        
         // TODO: fire event and send email
+        event(new ForgotPassword($user));
+
         // TODO: return response
+        return ApiResponse::success([]);
     }
 
     /**
