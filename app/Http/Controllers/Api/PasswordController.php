@@ -9,6 +9,8 @@ use App\Http\Requests\Api;
 use App\Models\User;
 use Illuminate\Auth\Passwords\TokenRepositoryInterface;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\DB;
+use App\Contracts\DBTable;
 
 class PasswordController extends Controller
 {
@@ -40,10 +42,30 @@ class PasswordController extends Controller
      */
     public function reset(Api\ResetPasswordRequest $request)
     {
-        // TODO: Find user by email
-        // TODO: Check token
-        // TODO: Change password
-        // TODO: fire event
-        // TODO: return response
+        $request->merge(['password_confirmation' => $request->input('password')]);
+        $credentials = $request->only(
+           'email', 'token', 'password', 'password_confirmation'
+        );
+        $response = Password::broker()->reset($credentials, function ($user, $password) {
+            $user->password = $password;
+            $user->save();
+            event(new PasswordWasReset($user));
+        });
+
+        if ($response == Password::INVALID_USER) {
+            // email dose not exist
+            return ApiResponse::error('E0009');
+        }
+
+        if ($response == Password::INVALID_PASSWORD) {
+            // password invalid
+            return ApiResponse::error('E0010');
+        }
+
+        if ($response == Password::INVALID_TOKEN) {
+            // token invalid
+            return ApiResponse::error('E0016');
+        }
+        return ApiResponse::success(null);
     }
 }
